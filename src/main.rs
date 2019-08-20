@@ -3,6 +3,8 @@
 extern crate rocket;
 #[macro_use]
 extern crate failure;
+#[macro_use]
+extern crate lazy_static;
 
 use rocket::http::RawStr;
 use rocket::request::{Form, FromFormValue};
@@ -60,20 +62,17 @@ struct Document {
     pub bytes_read: usize,
 }
 
-fn build_client() -> Result<reqwest::Client, Error> {
-    let client = reqwest::Client::builder()
+lazy_static! {
+    static ref CLIENT: reqwest::Client = reqwest::Client::builder()
         .gzip(true)
         .timeout(Duration::from_secs(10))
         .redirect(RedirectPolicy::limited(5))
-        .build()?;
-
-    Ok(client)
+        .build()
+        .unwrap();
 }
 
 fn get_title(url: &Url) -> Result<Option<Document>, Error> {
-    let client = build_client()?;
-
-    let response = client
+    let response = CLIENT
         .get(url.as_str())
         .header(USER_AGENT, META_USER_AGENT)
         .send()?;
