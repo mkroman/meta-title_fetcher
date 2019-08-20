@@ -1,0 +1,15 @@
+[package]
+authors = ["Mikkel Kroman <mk@uplink.io>"]
+edition = "2018"
+name = "meta-title_fetcher"
+version = "0.1.0"
+
+[dependencies]
+rocket = "0.4.2"
+rocket_contrib = "0.4.2"
+url = "2.1.0"
+reqwest = "0.9.19"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+failure = "0.1.5"
+scraper = "0.10"
