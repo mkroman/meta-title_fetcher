@@ -26,6 +26,8 @@ const META_USER_AGENT: &'static str =
 mod error;
 use error::Error;
 
+mod url_handler;
+
 struct Uri(Url);
 
 impl From<Url> for Uri {
@@ -121,5 +123,7 @@ fn fetch(user_input: Form<UserInput>) -> Result<Json<Document>, Error> {
 }
 
 fn main() {
+    url_handler::init();
+
     rocket::ignite().mount("/", routes![fetch]).launch();
 }
