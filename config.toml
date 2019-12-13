@@ -1,0 +1,5 @@
+[http]
+# timeout = 10
+# user_agent = "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0"
+# max_redirects = 5
+# max_content_length = 4294967296

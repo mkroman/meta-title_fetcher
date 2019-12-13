@@ -26,6 +26,8 @@ const META_USER_AGENT: &'static str =
 mod error;
 use error::Error;
 
+mod config;
+
 struct Uri(Url);
 
 impl From<Url> for Uri {
