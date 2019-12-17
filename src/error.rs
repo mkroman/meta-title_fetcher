@@ -20,6 +20,12 @@ pub enum Error {
     /// The requested content is too big to parse.
     #[fail(display = "Content-Length exceeds limit: {}", _0)]
     ContentTooBigError(u64),
+    /// There was a problem reading the config file.
+    #[fail(display = "Config file error: {}", error)]
+    ConfigError {
+        #[fail(cause)]
+        error: toml::de::Error,
+    },
     /// The requested content does not have a defined content-length.
     #[fail(display = "Content-Length is not returned")]
     ContentLengthMissingError,
@@ -40,6 +46,12 @@ impl From<reqwest::Error> for Error {
 impl From<IoError> for Error {
     fn from(error: IoError) -> Error {
         Error::IoError { error }
+    }
+}
+
+impl From<toml::de::Error> for Error {
+    fn from(error: toml::de::Error) -> Error {
+        Error::ConfigError { error }
     }
 }
 
