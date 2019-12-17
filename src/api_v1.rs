@@ -9,12 +9,7 @@ use url::Url;
 use std::io::Read;
 use std::time::Duration;
 
-use reqwest::header::USER_AGENT;
 use reqwest::RedirectPolicy;
-
-const MAX_CONTENT_LENGTH: u64 = (4 * 1024 * 1024);
-const META_USER_AGENT: &'static str =
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0";
 
 use crate::{Config, Error};
 
@@ -63,15 +58,17 @@ lazy_static! {
         .unwrap();
 }
 
-pub fn get_title(url: &Url) -> Result<Option<Document>, Error> {
+pub fn get_title(url: &Url, config: &Config) -> Result<Option<Document>, Error> {
+    use reqwest::header::USER_AGENT;
+
     let response = CLIENT
         .get(url.as_str())
-        .header(USER_AGENT, META_USER_AGENT)
+        .header(USER_AGENT, &config.http.user_agent)
         .send()?;
 
     let _content_length = match response.content_length() {
         Some(length) => {
-            if length < MAX_CONTENT_LENGTH {
+            if length < config.http.max_content_length {
                 length
             } else {
                 return Err(Error::ContentTooBigError(length));
@@ -80,10 +77,10 @@ pub fn get_title(url: &Url) -> Result<Option<Document>, Error> {
         None => 0,
     };
 
-    let mut buffer = String::with_capacity(MAX_CONTENT_LENGTH as usize);
+    let mut buffer = String::with_capacity(config.http.max_content_length as usize);
 
     let num_read = response
-        .take(MAX_CONTENT_LENGTH)
+        .take(config.http.max_content_length)
         .read_to_string(&mut buffer)?;
 
     let document = Html::parse_document(buffer.as_str());
@@ -108,6 +105,6 @@ pub fn fetch(user_input: Form<UserInput>, config: State<Config>) -> Result<Json<
         None => return Err(Error::UriParseError),
     };
 
-    let document = get_title(url)?;
+    let document = get_title(url, &config.inner())?;
     document.ok_or(Error::NoValidTitleError).map(|d| Json(d))
 }
