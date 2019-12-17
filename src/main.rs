@@ -31,15 +31,19 @@ fn main() -> Result<(), Error> {
         .get_matches();
 
     let config = match matches.value_of("config") {
-        Some(path) => Config::read_from(&mut File::open(path)?),
-        None => Ok(Config::default()),
+        Some(path) => match Config::read_from(&mut File::open(path)?) {
+            Ok(config) => config,
+            Err(err) => {
+                println!("Error when loading config: {}", err);
+
+                return Err(err);
+            }
+        },
+        None => Config::default(),
     };
 
-    if let Err(e) = config {
-        println!("config: {}", e);
-    }
-
     rocket::ignite()
+        .manage(config)
         .mount("/v1/", routes![api_v1::fetch])
         .launch();
 

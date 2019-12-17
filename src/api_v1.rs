@@ -1,5 +1,6 @@
 use rocket::http::RawStr;
 use rocket::request::{Form, FromFormValue};
+use rocket::State;
 use rocket_contrib::json::Json;
 use scraper::{Html, Selector};
 use serde::Serialize;
@@ -15,7 +16,7 @@ const MAX_CONTENT_LENGTH: u64 = (4 * 1024 * 1024);
 const META_USER_AGENT: &'static str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0";
 
-use crate::Error;
+use crate::{Config, Error};
 
 struct Uri(Url);
 
@@ -101,7 +102,7 @@ pub fn get_title(url: &Url) -> Result<Option<Document>, Error> {
 }
 
 #[post("/fetch", data = "<user_input>")]
-pub fn fetch(user_input: Form<UserInput>) -> Result<Json<Document>, Error> {
+pub fn fetch(user_input: Form<UserInput>, config: State<Config>) -> Result<Json<Document>, Error> {
     let url = match &user_input.uri {
         Some(uri) => uri.as_url(),
         None => return Err(Error::UriParseError),
