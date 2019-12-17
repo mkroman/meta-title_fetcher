@@ -1,7 +1,6 @@
 use serde::Deserialize;
 
 use std::io::Read;
-use std::path::Path;
 
 use crate::Error;
 
