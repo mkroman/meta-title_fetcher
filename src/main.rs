@@ -13,6 +13,7 @@ use scraper::{Html, Selector};
 use serde::Serialize;
 use url::Url;
 
+use std::fs::File;
 use std::io::Read;
 use std::time::Duration;
 
@@ -27,6 +28,7 @@ mod error;
 use error::Error;
 
 mod config;
+use config::Config;
 
 struct Uri(Url);
 
@@ -123,5 +125,12 @@ fn fetch(user_input: Form<UserInput>) -> Result<Json<Document>, Error> {
 }
 
 fn main() {
-    rocket::ignite().mount("/", routes![fetch]).launch();
+    let mut config_file = File::open("config.toml").unwrap();
+    let config = Config::read_from(&mut config_file);
+
+    if let Err(e) = config {
+        println!("config: {}", e);
+    }
+
+    rocket::ignite().mount("/v1/", routes![fetch]).launch();
 }

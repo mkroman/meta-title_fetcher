@@ -1,5 +1,9 @@
+use serde::Deserialize;
+
 use std::io::Read;
 use std::path::Path;
+
+use crate::Error;
 
 /// The default User-Agent header value.
 const DEFAULT_USER_AGENT: &'static str =
@@ -16,7 +20,7 @@ const DEFAULT_MAX_REDIRECTS: u64 = 5;
 const DEFAULT_TIMEOUT: u64 = 10;
 
 #[derive(Debug, Deserialize)]
-pub struct Config {
+pub struct HttpConfig {
     /// The number of bytes to process in a request before closing the connection.
     pub max_content_length: u64,
     /// The User-Agent header sent with each request.
@@ -27,16 +31,36 @@ pub struct Config {
     pub timeout: u64,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct Config {
+    pub http: HttpConfig,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Config {
+            http: HttpConfig {
+                max_content_length: DEFAULT_MAX_CONTENT_LENGTH,
+                user_agent: DEFAULT_USER_AGENT.to_string(),
+                max_redirects: DEFAULT_MAX_REDIRECTS,
+                timeout: DEFAULT_TIMEOUT,
+            },
+        }
+    }
+}
+
 impl Config {
     /// Returns a new Config with default values.
     pub fn new() -> Config {
-        Config {
-            max_content_length: DEFAULT_MAX_CONTENT_LENGTH,
-            user_agent: DEFAULT_USER_AGENT.to_string(),
-            max_redirects: DEFAULT_MAX_REDIRECTS,
-            timeout: DEFAULT_TIMEOUT,
-        }
+        Default::default()
     }
 
-    pub fn read_from<R: Read>(reader: R) -> Result<Config> {}
+    pub fn read_from<R: Read>(reader: &mut R) -> Result<Config, Error> {
+        let mut buffer = String::new();
+        reader.read_to_string(&mut buffer)?;
+
+        let config = toml::from_str(&buffer).map_err(|e| e.into());
+
+        return config;
+    }
 }
