@@ -6,6 +6,7 @@ extern crate failure;
 #[macro_use]
 extern crate lazy_static;
 
+use clap::{crate_authors, crate_version, App, Arg};
 use rocket::http::RawStr;
 use rocket::request::{Form, FromFormValue};
 use rocket_contrib::json::Json;
@@ -24,11 +25,11 @@ const MAX_CONTENT_LENGTH: u64 = (4 * 1024 * 1024);
 const META_USER_AGENT: &'static str =
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101 Firefox/68.0";
 
-mod error;
-use error::Error;
-
 mod config;
+mod error;
+
 use config::Config;
+use error::Error;
 
 struct Uri(Url);
 
@@ -124,13 +125,29 @@ fn fetch(user_input: Form<UserInput>) -> Result<Json<Document>, Error> {
     document.ok_or(Error::NoValidTitleError).map(|d| Json(d))
 }
 
-fn main() {
-    let mut config_file = File::open("config.toml").unwrap();
-    let config = Config::read_from(&mut config_file);
+fn main() -> Result<(), Error> {
+    let matches = App::new("meta-title_fetcher")
+        .version(crate_version!())
+        .author(crate_authors!())
+        .arg(
+            Arg::with_name("config")
+                .help("Sets a custom config file")
+                .short("c")
+                .value_name("FILE")
+                .takes_value(true),
+        )
+        .get_matches();
+
+    let config = match matches.value_of("config") {
+        Some(path) => Config::read_from(&mut File::open(path)?),
+        None => Ok(Config::default()),
+    };
 
     if let Err(e) = config {
         println!("config: {}", e);
     }
 
     rocket::ignite().mount("/v1/", routes![fetch]).launch();
+
+    Ok(())
 }

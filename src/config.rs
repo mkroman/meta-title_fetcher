@@ -33,34 +33,35 @@ pub struct HttpConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub http: HttpConfig,
+    pub http: Option<HttpConfig>,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Config {
-            http: HttpConfig {
-                max_content_length: DEFAULT_MAX_CONTENT_LENGTH,
-                user_agent: DEFAULT_USER_AGENT.to_string(),
-                max_redirects: DEFAULT_MAX_REDIRECTS,
-                timeout: DEFAULT_TIMEOUT,
-            },
+            http: Some(HttpConfig::default()),
+        }
+    }
+}
+
+impl Default for HttpConfig {
+    fn default() -> Self {
+        HttpConfig {
+            max_content_length: DEFAULT_MAX_CONTENT_LENGTH,
+            user_agent: DEFAULT_USER_AGENT.to_string(),
+            max_redirects: DEFAULT_MAX_REDIRECTS,
+            timeout: DEFAULT_TIMEOUT,
         }
     }
 }
 
 impl Config {
-    /// Returns a new Config with default values.
-    pub fn new() -> Config {
-        Default::default()
-    }
-
+    /// Returns a Config struct that from a reader that has access to a toml config.
     pub fn read_from<R: Read>(reader: &mut R) -> Result<Config, Error> {
         let mut buffer = String::new();
+
         reader.read_to_string(&mut buffer)?;
 
-        let config = toml::from_str(&buffer).map_err(|e| e.into());
-
-        return config;
+        toml::from_str(&buffer).map_err(|e| e.into())
     }
 }
