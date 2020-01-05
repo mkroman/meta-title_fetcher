@@ -13,6 +13,7 @@ use std::fs::File;
 mod api_v1;
 mod config;
 mod error;
+mod url_handler;
 
 use config::Config;
 use error::Error;
@@ -42,8 +43,11 @@ fn main() -> Result<(), Error> {
         None => Config::default(),
     };
 
+    let handler_registry = url_handler::init_registry();
+
     rocket::ignite()
         .manage(config)
+        .manage(handler_registry)
         .mount("/v1/", routes![api_v1::fetch])
         .launch();
 

@@ -1,5 +1,3 @@
-use std::sync::Mutex;
-
 mod html_title;
 
 pub trait UrlHandler {}
@@ -20,13 +18,10 @@ impl UrlHandlerRegistry {
     }
 }
 
-lazy_static! {
-    // Url handler registry
-    static ref URL_HANDLER_REGISTRY: Mutex<UrlHandlerRegistry> = Mutex::new(UrlHandlerRegistry::new());
-}
+pub fn init_registry() -> UrlHandlerRegistry {
+    let mut registry = UrlHandlerRegistry::new();
 
-pub fn init() {
-    let mut url_handler_registry = URL_HANDLER_REGISTRY.lock().unwrap();
+    html_title::register(&mut registry);
 
-    url_handler_registry.register(html_title::HtmlTitleUrlHandler::new());
+    return registry;
 }

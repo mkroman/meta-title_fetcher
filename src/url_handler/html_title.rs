@@ -1,7 +1,7 @@
 use reqwest::RedirectPolicy;
 use std::time::Duration;
 
-use crate::url_handler::UrlHandler;
+use crate::url_handler::{UrlHandler, UrlHandlerRegistry};
 
 pub struct HtmlTitleUrlHandler {
     client: reqwest::Client,
@@ -21,3 +21,7 @@ impl HtmlTitleUrlHandler {
 }
 
 impl UrlHandler for HtmlTitleUrlHandler {}
+
+pub fn register(registry: &mut UrlHandlerRegistry) {
+    registry.register(HtmlTitleUrlHandler::new());
+}
