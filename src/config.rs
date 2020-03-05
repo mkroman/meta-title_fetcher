@@ -5,12 +5,12 @@ use std::io::Read;
 use crate::Error;
 
 /// The default User-Agent header value.
-const DEFAULT_USER_AGENT: &'static str =
+const DEFAULT_USER_AGENT: &str =
     "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0";
 
 /// The default setting for the `max_content_length` config option.
 /// Defaults to 4 MiB.
-const DEFAULT_MAX_CONTENT_LENGTH: u64 = (4 * 1024 * 1024);
+const DEFAULT_MAX_CONTENT_LENGTH: u64 = 4 * 1024 * 1024;
 
 /// The default value for maximum number of redirects.
 const DEFAULT_MAX_REDIRECTS: u64 = 5;

@@ -1,5 +1,6 @@
 use rocket::http::RawStr;
 use rocket::request::{Form, FromFormValue};
+use rocket::Rocket;
 use rocket::State;
 use rocket_contrib::json::Json;
 use scraper::{Html, Selector};
@@ -93,7 +94,7 @@ pub fn get_title(url: &Url, config: &Config) -> Result<Option<Document>, Error> 
         .join(" ");
 
     Ok(Some(Document {
-        title: title.to_string(),
+        title,
         bytes_read: num_read,
     }))
 }
@@ -106,5 +107,9 @@ pub fn fetch(user_input: Form<UserInput>, config: State<Config>) -> Result<Json<
     };
 
     let document = get_title(url, &config.inner())?;
-    document.ok_or(Error::NoValidTitleError).map(|d| Json(d))
+    document.ok_or(Error::NoValidTitleError).map(Json)
+}
+
+pub fn mount(rocket: Rocket) -> Rocket {
+    rocket.mount("/v1/", routes![fetch])
 }

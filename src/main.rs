@@ -45,11 +45,10 @@ fn main() -> Result<(), Error> {
 
     let handler_registry = url_handler::init_registry();
 
-    rocket::ignite()
-        .manage(config)
-        .manage(handler_registry)
-        .mount("/v1/", routes![api_v1::fetch])
-        .launch();
+    let mut rocket = rocket::ignite().manage(config).manage(handler_registry);
+    rocket = api_v1::mount(rocket);
+
+    rocket.launch();
 
     Ok(())
 }
