@@ -46,6 +46,8 @@ fn main() -> Result<(), Error> {
     let handler_registry = url_handler::init_registry();
 
     let mut rocket = rocket::ignite().manage(config).manage(handler_registry);
+
+    // Mount the v1 API endpoint.
     rocket = api_v1::mount(rocket);
 
     rocket.launch();

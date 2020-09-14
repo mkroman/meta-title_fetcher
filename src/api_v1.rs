@@ -10,7 +10,7 @@ use url::Url;
 use std::io::Read;
 use std::time::Duration;
 
-use reqwest::RedirectPolicy;
+use reqwest::redirect::Policy;
 
 use crate::{Config, Error};
 
@@ -51,10 +51,10 @@ pub struct Document {
 }
 
 lazy_static! {
-    static ref CLIENT: reqwest::Client = reqwest::Client::builder()
+    static ref CLIENT: reqwest::blocking::Client = reqwest::blocking::Client::builder()
         .gzip(true)
         .timeout(Duration::from_secs(10))
-        .redirect(RedirectPolicy::limited(5))
+        .redirect(Policy::limited(5))
         .build()
         .unwrap();
 }
