@@ -10,7 +10,7 @@ const DEFAULT_USER_AGENT: &'static str =
 
 /// The default setting for the `max_content_length` config option.
 /// Defaults to 4 MiB.
-const DEFAULT_MAX_CONTENT_LENGTH: u64 = (4 * 1024 * 1024);
+const DEFAULT_MAX_CONTENT_LENGTH: u64 = 4 * 1024 * 1024;
 
 /// The default value for maximum number of redirects.
 const DEFAULT_MAX_REDIRECTS: u64 = 5;

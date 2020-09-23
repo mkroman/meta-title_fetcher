@@ -1,12 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
-#[macro_use]
-extern crate rocket;
-#[macro_use]
-extern crate failure;
-#[macro_use]
-extern crate lazy_static;
 
 use clap::{crate_authors, crate_version, App, Arg};
+use rocket::routes;
 
 use std::fs::File;
 
