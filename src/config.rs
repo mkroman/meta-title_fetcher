@@ -5,7 +5,7 @@ use std::io::Read;
 use crate::Error;
 
 /// The default User-Agent header value.
-const DEFAULT_USER_AGENT: &'static str =
+const DEFAULT_USER_AGENT: &str =
     "Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101 Firefox/71.0";
 
 /// The default setting for the `max_content_length` config option.

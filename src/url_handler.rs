@@ -23,5 +23,5 @@ pub fn init_registry() -> UrlHandlerRegistry {
 
     html_title::register(&mut registry);
 
-    return registry;
+    registry
 }

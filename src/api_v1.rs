@@ -1,8 +1,7 @@
 use lazy_static::lazy_static;
 use rocket::http::RawStr;
-use rocket::post;
 use rocket::request::{Form, FromForm, FromFormValue};
-use rocket::State;
+use rocket::{post, routes, Rocket, State};
 use rocket_contrib::json::Json;
 use scraper::{Html, Selector};
 use serde::Serialize;
@@ -11,7 +10,7 @@ use url::Url;
 use std::io::Read;
 use std::time::Duration;
 
-use reqwest::RedirectPolicy;
+use reqwest::redirect::Policy;
 
 use crate::{Config, Error};
 
@@ -52,10 +51,10 @@ pub struct Document {
 }
 
 lazy_static! {
-    static ref CLIENT: reqwest::Client = reqwest::Client::builder()
+    static ref CLIENT: reqwest::blocking::Client = reqwest::blocking::Client::builder()
         .gzip(true)
         .timeout(Duration::from_secs(10))
-        .redirect(RedirectPolicy::limited(5))
+        .redirect(Policy::limited(5))
         .build()
         .unwrap();
 }
@@ -95,7 +94,7 @@ pub fn get_title(url: &Url, config: &Config) -> Result<Option<Document>, Error> 
         .join(" ");
 
     Ok(Some(Document {
-        title: title.to_string(),
+        title,
         bytes_read: num_read,
     }))
 }
@@ -108,5 +107,9 @@ pub fn fetch(user_input: Form<UserInput>, config: State<Config>) -> Result<Json<
     };
 
     let document = get_title(url, &config.inner())?;
-    document.ok_or(Error::NoValidTitleError).map(|d| Json(d))
+    document.ok_or(Error::NoValidTitleError).map(Json)
+}
+
+pub fn mount(rocket: Rocket) -> Rocket {
+    rocket.mount("/v1/", routes![fetch])
 }

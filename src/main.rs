@@ -1,7 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 use clap::{crate_authors, crate_version, App, Arg};
-use rocket::routes;
 
 use std::fs::File;
 
@@ -40,11 +39,12 @@ fn main() -> Result<(), Error> {
 
     let handler_registry = url_handler::init_registry();
 
-    rocket::ignite()
-        .manage(config)
-        .manage(handler_registry)
-        .mount("/v1/", routes![api_v1::fetch])
-        .launch();
+    let mut rocket = rocket::ignite().manage(config).manage(handler_registry);
+
+    // Mount the v1 API endpoint.
+    rocket = api_v1::mount(rocket);
+
+    rocket.launch();
 
     Ok(())
 }
